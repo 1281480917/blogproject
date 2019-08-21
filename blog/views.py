@@ -1,17 +1,42 @@
 from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from .models import Post, Category
+from .forms import ContactForm
 from comments.forms import CommentForm
 import markdown
 # Create your views here.
 from django.views.generic import ListView, DetailView
+from django.core.mail import send_mail
+from blogproject import settings
+def about(request):
+    return render(request,'blog/about.html')
+def contact(request):
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ContactForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+            # redirect to a new URL:
 
+            return HttpResponse('邮件已发出请注意查收')
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ContactForm()
+
+    return render(request, 'blog/contact.html', {'form': form})
+def full_width(request):
+    return render(request,'blog/full-width.html')
 class IndexView(ListView):
     model = Post
     template_name = 'blog/index.html'
     context_object_name = 'post_list'
     # 指定 paginate_by 属性后开启分页功能，其值代表每一页包含多少篇文章
-    paginate_by = 1
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         """
